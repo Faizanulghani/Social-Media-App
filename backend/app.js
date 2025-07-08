@@ -1,5 +1,6 @@
 let express = require("express");
 let app = express();
+let cookieParser = require("cookie-parser");
 
 if (process.env.NODE_ENV !== "PRODUCTION") {
   require("dotenv").config({ path: "config/config.env" });
@@ -7,6 +8,7 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 const post = require("./routes/post");
 const user = require("./routes/user");

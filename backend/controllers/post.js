@@ -1,5 +1,5 @@
 let Post = require("../model/Post");
-
+let User = require("../model/User");
 exports.createPost = async (req, res) => {
   try {
     const newPostData = {
@@ -12,10 +12,49 @@ exports.createPost = async (req, res) => {
     };
 
     const newPost = await Post.create(newPostData);
+    const user = await User.findById(req.user._id);
+    user.posts.push(newPost._id);
+    await user.save();
+
     res.status(200).json({
       success: true,
       post: newPost,
     });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.likeAndUnlikePost = async (req, res) => {
+  try {
+    let post = await Post.findById(req.params.id);
+
+    if(!post){
+      return res.status(404).json({
+        success: false,
+        message: "Post Not Found",
+      });
+    }
+
+    if (post.likes.includes(req.user._id)) {
+      let index = post.likes.indexOf(req.user._id);
+      post.likes.splice(index, 1);
+      await post.save();
+      return res.status(200).json({
+        success: true,
+        message: "Post Unliked",
+      });
+    } else {
+      post.likes.push(req.user._id);
+      await post.save();
+      return res.status(200).json({
+        success: true,
+        message: "Post Liked",
+      });
+    }
   } catch (error) {
     res.status(400).json({
       success: false,
