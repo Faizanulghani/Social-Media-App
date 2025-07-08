@@ -1,0 +1,18 @@
+{
+  "name": "socialmediaapp",
+  "version": "1.0.0",
+  "description": "SOCIAL MEDIA APP",
+  "license": "ISC",
+  "author": "Faizan Ul Ghani",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.16.1",
+    "nodemon": "^3.1.10"
+  }
+}
