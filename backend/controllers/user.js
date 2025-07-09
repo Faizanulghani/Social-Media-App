@@ -79,19 +79,22 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.logout = async (req,res)=>{
+exports.logout = async (req, res) => {
   try {
-    res.status(200).cookie("token",null,{expires:new Date(Date.now()),httpOnly:true}).json({
-      success:true,
-      message:"Logged Out"
-    })
+    res
+      .status(200)
+      .cookie("token", null, { expires: new Date(Date.now()), httpOnly: true })
+      .json({
+        success: true,
+        message: "Logged Out",
+      });
   } catch (error) {
     res.status(400).json({
-      success:false,
-      error:error.message
-    })
+      success: false,
+      error: error.message,
+    });
   }
-}
+};
 
 exports.followUser = async (req, res) => {
   try {
@@ -138,3 +141,54 @@ exports.followUser = async (req, res) => {
     });
   }
 };
+
+exports.updatePassword = async (req, res) => {
+  try {
+    let user = await User.findById(req.user._id).select("+password");
+    let { oldPassword, newPassword } = req.body;
+    let isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Old Password is incorrect",
+      });
+    }
+
+    let hash = await bcrypt.hash(newPassword, 10);
+    user.password = hash;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password Updated",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.updateProfile = async (req,res)=>{
+  try {
+      let user = await User.findById(req.user._id);
+      let {name,email} = req.body
+      if(name){
+        user.name = name
+      }
+      if(email){
+        user.email = email
+      }
+      await user.save()
+      res.status(200).json({
+        success: true,
+        message: "Profile Updated",
+      });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}
