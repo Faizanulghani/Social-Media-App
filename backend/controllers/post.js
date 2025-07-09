@@ -1,5 +1,6 @@
 let Post = require("../model/Post");
 let User = require("../model/User");
+
 exports.createPost = async (req, res) => {
   try {
     const newPostData = {
@@ -99,3 +100,19 @@ exports.likeAndUnlikePost = async (req, res) => {
     });
   }
 };
+
+exports.getPostsOfFollowing = async (req, res) => {
+  try{
+    let user = await User.findById(req.user._id);
+    let posts = await Post.find({ owner: { $in: user.following } });
+    res.status(200).json({
+      success: true,
+      posts,
+    });
+  }catch(error){ 
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+}
