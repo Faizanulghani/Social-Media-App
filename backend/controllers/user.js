@@ -198,10 +198,26 @@ exports.deleteMyProfile = async (req, res) => {
   try {
     let user = await User.findById(req.user._id);
     let posts = user.posts;
+    let followers = user.followers;
+    let followings = user.following;
 
     for (let i = 0; i < posts.length; i++) {
       let post = await Post.findById(posts[i]);
       await post.deleteOne();
+    }
+
+    for (let i = 0; i < followers.length; i++) {
+      let follower = await User.findById(followers[i]);
+      let index = follower.following.indexOf(req.user._id);
+      follower.following.splice(index, 1);
+      await follower.save();
+    }
+
+    for (let i = 0; i < followings.length; i++) {
+      let follows = await User.findById(followings[i]);
+      let index = follows.followers.indexOf(req.user._id);
+      follows.following.splice(index, 1);
+      await follows.save();
     }
 
     await user.deleteOne();
@@ -214,6 +230,21 @@ exports.deleteMyProfile = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Profile Deleted",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.myProfile = async (req, res) => {
+  try {
+    let user = await User.findById(req.user._id).populate("posts");
+    res.status(200).json({
+      success: true,
+      user,
     });
   } catch (error) {
     res.status(400).json({
