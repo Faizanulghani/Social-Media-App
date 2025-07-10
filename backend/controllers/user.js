@@ -1,4 +1,5 @@
 const User = require("../model/User");
+let Post = require("../model/Post");
 const bcrypt = require("bcrypt");
 let jwt = require("jsonwebtoken");
 exports.register = async (req, res) => {
@@ -170,25 +171,54 @@ exports.updatePassword = async (req, res) => {
   }
 };
 
-exports.updateProfile = async (req,res)=>{
+exports.updateProfile = async (req, res) => {
   try {
-      let user = await User.findById(req.user._id);
-      let {name,email} = req.body
-      if(name){
-        user.name = name
-      }
-      if(email){
-        user.email = email
-      }
-      await user.save()
-      res.status(200).json({
-        success: true,
-        message: "Profile Updated",
-      });
+    let user = await User.findById(req.user._id);
+    let { name, email } = req.body;
+    if (name) {
+      user.name = name;
+    }
+    if (email) {
+      user.email = email;
+    }
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "Profile Updated",
+    });
   } catch (error) {
     res.status(400).json({
       success: false,
       error: error.message,
     });
   }
-}
+};
+
+exports.deleteMyProfile = async (req, res) => {
+  try {
+    let user = await User.findById(req.user._id);
+    let posts = user.posts;
+
+    for (let i = 0; i < posts.length; i++) {
+      let post = await Post.findById(posts[i]);
+      await post.deleteOne();
+    }
+
+    await user.deleteOne();
+
+    res.cookie("token", null, {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile Deleted",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
