@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
-import Header from "./Components/Header";
+import Header from "./Components/Header/Header";
 
 // Dummy Components (Just for now, jab tak asli components nahi hain)
 const Home = () => <h1>Home Page</h1>;
