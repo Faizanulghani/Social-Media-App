@@ -51,7 +51,7 @@ exports.deletePost = async (req, res) => {
 
     const user = await User.findById(req.user._id);
     const index = user.posts.indexOf(req.params.id);
-    
+
     user.posts.splice(index, 1);
     await user.save();
     res.status(200).json({
@@ -102,49 +102,140 @@ exports.likeAndUnlikePost = async (req, res) => {
 };
 
 exports.getPostsOfFollowing = async (req, res) => {
-  try{
+  try {
     let user = await User.findById(req.user._id);
     let posts = await Post.find({ owner: { $in: user.following } });
     res.status(200).json({
       success: true,
       posts,
     });
-  }catch(error){ 
+  } catch (error) {
     res.status(400).json({
       success: false,
       error: error.message,
     });
   }
-}
+};
 
-exports.updateCaption = async (req,res) =>{
+exports.updateCaption = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    if(!post){
+    if (!post) {
       return res.status(404).json({
         success: false,
         message: "Post Not Found",
       });
     }
 
-      if(post.owner.toString() !== req.user._id.toString()){
-        return res.status(401).json({
+    if (post.owner.toString() !== req.user._id.toString()) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    post.caption = req.body.caption;
+    await post.save();
+    res.status(200).json({
+      success: true,
+      message: "Caption Updated",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.addComment = async (req, res) => {
+  try {
+    let post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post Not Found",
+      });
+    }
+
+    let commentExists = -1;
+
+    post.comments.forEach((item, index) => {
+      if (item.user.toString() === req.user._id.toString()) {
+        commentExists = index;
+      }
+    });
+
+    if (commentExists !== -1) {
+      post.comments[commentExists].comment = req.body.comment;
+      await post.save();
+      return res.status(200).json({
+        success: true,
+        message: "Comment Updated",
+      });
+    } else {
+      post.comments.push({
+        user: req.user._id,
+        comment: req.body.comment,
+      });
+      await post.save();
+      return res.status(200).json({
+        success: true,
+        message: "Comment Added",
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+exports.deleteComment = async (req, res) => {
+  try {
+    let post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post Not Found",
+      });
+    }
+    if (post.owner.toString() === req.user._id.toString()) {
+
+      if(req.body.commentId === undefined){
+        return res.status(400).json({
           success: false,
-          message: "Unauthorized",
+          message: "Comment Id is required",
         });
       }
 
-      post.caption = req.body.caption;
+      post.comments.forEach((item, index) => {
+        if (item._id.toString() === req.body.commentId.toString()) {
+          return post.comments.splice(index, 1);
+        }
+      });
       await post.save();
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
-        message: "Caption Updated",
+        message: "Comment Deleted",
       });
-
+    } else {
+      post.comments.forEach((item, index) => {
+        if (item.user.toString() === req.user._id.toString()) {
+          return post.comments.splice(index, 1);
+        }
+      });
+      await post.save();
+      return res.status(200).json({
+        success: true,
+        message: "Comment Deleted",
+      });
+    }
   } catch (error) {
-      res.status(400).json({
-        success: false,
-        error: error.message,
-      });
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
   }
-}
+};
