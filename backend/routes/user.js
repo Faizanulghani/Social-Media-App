@@ -10,6 +10,8 @@ const {
   myProfile,
   getUserProfile,
   getAllUsers,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/user");
 const { isAuthenticated } = require("../middleware/isAuthenticated");
 let router = express.Router();
@@ -24,5 +26,7 @@ router.route("/delete/me").delete(isAuthenticated, deleteMyProfile);
 router.route("/me").get(isAuthenticated, myProfile);
 router.route("/user/:id").get(isAuthenticated, getUserProfile);
 router.route("/user").get(isAuthenticated, getAllUsers);
+router.route("/forget/password").post(forgotPassword);
+router.route("/password/reset/:token").put(resetPassword);
 
 module.exports = router;
