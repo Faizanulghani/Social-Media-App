@@ -46,3 +46,19 @@ export const userReducer = createReducer(initialState, (builder) => {
       state.isAuthenticated = false;
     });
 });
+
+
+export const postOfFollowingReducer = createReducer(initialState, (builder) => {
+  builder
+    .addCase("postOfFollowingRequest", (state) => {
+      state.loading = true;
+    })
+    .addCase("postOfFollowingSuccess", (state, action) => {
+      state.loading = false;
+      state.posts = action.payload;
+    })
+    .addCase("postOfFollowingFailure", (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
+})
