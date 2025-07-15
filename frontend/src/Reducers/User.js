@@ -47,7 +47,6 @@ export const userReducer = createReducer(initialState, (builder) => {
     });
 });
 
-
 export const postOfFollowingReducer = createReducer(initialState, (builder) => {
   builder
     .addCase("postOfFollowingRequest", (state) => {
@@ -61,4 +60,19 @@ export const postOfFollowingReducer = createReducer(initialState, (builder) => {
       state.loading = false;
       state.error = action.payload;
     });
-})
+});
+
+export const allUserReducer = createReducer(initialState, (builder) => {
+  builder
+    .addCase("allUsersRequest", (state) => {
+      state.loading = true;
+    })
+    .addCase("allUsersSuccess", (state, action) => {
+      state.loading = false;
+      state.users = action.payload;
+    })
+    .addCase("allUsersFailure", (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
+});

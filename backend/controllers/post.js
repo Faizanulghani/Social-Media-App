@@ -104,7 +104,7 @@ exports.likeAndUnlikePost = async (req, res) => {
 exports.getPostsOfFollowing = async (req, res) => {
   try {
     let user = await User.findById(req.user._id);
-    let posts = await Post.find({ owner: { $in: user.following } });
+    let posts = await Post.find({ owner: { $in: user.following } }).populate("owner likes comments.user");
     res.status(200).json({
       success: true,
       posts:posts.reverse(),
