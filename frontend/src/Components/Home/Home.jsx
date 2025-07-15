@@ -14,14 +14,14 @@ const Home = () => {
   let { loading, posts, error } = useSelector(
     (state) => state.postsOfFollowing
   );
-  let { users } = useSelector((state) => state.allUsers);
+  let { users,loading:usersLoading } = useSelector((state) => state.allUsers);
 
   useEffect(() => {
     dispacth(getFollowingPosts());
     dispacth(getAllUsers());
   }, [dispacth]);
 
-  return loading ? (
+  return loading === true || usersLoading === true ? (
     <Loader />
   ) : (
     <div className="home">
